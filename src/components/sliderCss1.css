@@ -1,0 +1,18 @@
+.loader {
+    height: 400px;
+    font-size: 100px;
+
+    color: rgb(0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+
+  .tst{
+    height: 400px;
+  }
+
+  .tst1{
+    height: 232px;
+  }

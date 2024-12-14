@@ -1,0 +1,8 @@
+.custom-modal .modal-dialog {
+    max-width: 80%;  /* Увеличиваем размер модального окна */
+    width: 80%;
+}
+
+.custom-modal .modal-content {
+    height: auto;  /* Устанавливаем автоматическую высоту */
+}
