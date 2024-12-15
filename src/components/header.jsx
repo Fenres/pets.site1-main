@@ -1,26 +1,14 @@
-
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form, Modal, Alert } from 'react-bootstrap';
 import { useAuth } from './AuthContext'; // Импортируем хук для работы с контекстом
 import logo from '../png/logo.jpg';
-
-
-import React, { useState, useEffect, useCallback } from 'react';
-
-import debounce from 'lodash.debounce';
-
 
 const Header = () => {
   const [showModal, setShowModal] = useState(false);
   const [isLoginTabActive, setIsLoginTabActive] = useState(true);
   const [errorMessages, setErrorMessages] = useState([]);
   const [isRegistered, setIsRegistered] = useState(false);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [noResults, setNoResults] = useState(false);
 
   const { authToken, setAuthToken } = useAuth(); // Получаем токен из контекста и функцию для его обновления
   const location = useLocation();
@@ -51,62 +39,6 @@ const Header = () => {
     setErrorMessages([]);
     setIsRegistered(false);
   };
-
-
-  // Функция debounce для отложенного поиска
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      if (query.length > 3) {
-        fetchSearchResults(query);
-      }
-    }, 1000),
-    []
-  );
-
-  // Обработчик изменения ввода поиска
-  const handleSearchChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    setIsSearching(true);
-    debouncedSearch(query);
-  };
-
-  // Функция для отправки запроса на сервер
-  const fetchSearchResults = async (query) => {
-    try {
-      const response = await fetch(`https://pets.сделай.site/api/search?query=${query}`);
-      if (response.status === 200) {
-        const data = await response.json();
-        setSearchResults(data.data.orders);
-        setNoResults(false);
-      } else if (response.status === 204) {
-        setNoResults(true);
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error('Ошибка при поиске:', error);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  // Отображение подсказок по поиску
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (searchQuery.length > 3) {
-        try {
-          const response = await fetch(`https://pets.сделай.site/api/search?query=${searchQuery}`);
-          if (response.status === 200) {
-            const data = await response.json();
-            setSuggestions(data.data.orders.map(order => order.description));
-          }
-        } catch (error) {
-          console.error('Ошибка при загрузке подсказок:', error);
-        }
-      }
-    };
-    fetchSuggestions();
-  }, [searchQuery]);
 
   const handleShowModal = () => setShowModal(true);
 
@@ -291,21 +223,17 @@ const Header = () => {
               </li>
             </ul>
             <form className="d-flex mb-2 mb-lg-0 " onSubmit={(e) => e.preventDefault()}>
-            <Form className="d-flex mb-2">
-        <input
-          className="form-control me-2"
-          type="search"
-          list="suggestions"
-          placeholder="Поиск объявлений"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          aria-label="Search"
-        />
-        <Button className="btn btn-primary" disabled={isSearching}>
-          {isSearching ? 'Поиск...' : 'Поиск'}
-        </Button>
-        </Form>
-             
+              <input
+                className="form-control me-2"
+                type="search"
+                list="pets"
+                placeholder="Поиск"
+                aria-label="Search"
+              />
+              <button className="btn btn-primary me-2">Поиск</button>
+                   </form>
+
+                   
               {!authToken ? (
                 <Button className="btn btn-primary me-2 mb-2 mb-lg-0" onClick={handleShowModal}>
                   Вход / Регистрация
@@ -315,7 +243,7 @@ const Header = () => {
                   Выйти
                 </Button>
               )}
-            </form>
+        
           </div>
         </div>
       </nav>
