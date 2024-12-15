@@ -137,13 +137,16 @@ const Header = () => {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Выполняем валидацию формы регистрации
     const errors = validateRegistrationForm();
     if (errors.length > 0) {
+      // Если есть ошибки, выводим их и отменяем отправку
       setErrorMessages(errors);
-      return;
+      return;  // Не отправляем форму
     }
-
+  
+    // Если ошибок нет, отправляем данные на сервер
     const registrationData = {
       name: registerName,
       phone: registerPhone,
@@ -152,7 +155,7 @@ const Header = () => {
       password_confirmation: registerPasswordConfirm,
       confirm: registerConfirm ? "true" : "false",
     };
-
+  
     try {
       const response = await fetch('https://pets.сделай.site/api/register', {
         method: 'POST',
@@ -161,7 +164,7 @@ const Header = () => {
         },
         body: JSON.stringify(registrationData),
       });
-
+  
       if (response.status === 204) {
         setIsRegistered(true);
       } else if (response.status === 422) {
@@ -177,7 +180,9 @@ const Header = () => {
       setErrorMessages([error.message]);
     }
   };
+  
 
+  
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
