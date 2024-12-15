@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form, Modal, Alert } from 'react-bootstrap';
 import { useAuth } from './AuthContext'; // Импортируем хук для работы с контекстом
 import logo from '../png/logo.jpg';
+import Poisc from './poisc';
+
 
 const Header = () => {
   const [showModal, setShowModal] = useState(false);
@@ -23,6 +25,55 @@ const Header = () => {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState("");
   const [registerConfirm, setRegisterConfirm] = useState(false);
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  let debounceTimeout = null;
+
+  const fetchSuggestions = async (query) => {
+    try {
+      const response = await fetch(`https://pets.сделай.site/api/search?query=${query}`);
+      if (response.status === 200) {
+        const data = await response.json();
+        setSuggestions(data.data.orders || []);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки подсказок:', error);
+    }
+  };
+
+  // Debounced handler for search input
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    // If input has more than 3 characters, show suggestions
+    if (query.length > 3) {
+      // Clear the previous debounce
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+
+      // Set a new debounce
+      debounceTimeout = setTimeout(() => {
+        fetchSuggestions(query);
+      }, 1000); // 1000ms delay
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  // Redirect to the search results page
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/petsSearch?query=${searchQuery.trim()}`);
+    }
+  };
+
+
+
 
   const isActive = (path) => location.pathname === path;
 
@@ -174,7 +225,7 @@ const Header = () => {
   };
 
   return (
-    <div>
+    <div className=''>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
           <Link to="/" className="navbar-brand">
@@ -222,17 +273,7 @@ const Header = () => {
                 </Link>
               </li>
             </ul>
-            <form className="d-flex mb-2 mb-lg-0 " onSubmit={(e) => e.preventDefault()}>
-              <input
-                className="form-control me-2"
-                type="search"
-                list="pets"
-                placeholder="Поиск"
-                aria-label="Search"
-              />
-              <button className="btn btn-primary me-2">Поиск</button>
-                   </form>
-
+         <Poisc></Poisc>
                    
               {!authToken ? (
                 <Button className="btn btn-primary me-2 mb-2 mb-lg-0" onClick={handleShowModal}>

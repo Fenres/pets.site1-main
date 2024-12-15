@@ -82,7 +82,7 @@ const Searchforads = () => {
     <div>
       {/* Search Panel */}
       <div className="search-box text-center text-white bg-primary me-2 p-2">
-        <h3>Search</h3>
+        <h3>Поиска по объявлениям</h3>
         <div className="d-flex flex-wrap justify-content-center">
           <input
             type="text"

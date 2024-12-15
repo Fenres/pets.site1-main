@@ -9,6 +9,7 @@ import PetsSearch from "./pages/petsSearch";
 
 
 import { AuthProvider } from './components/AuthContext'; // Импортируйте AuthProvider
+import SearcPet from "./components/SearcPet";
 
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/myAccount" element={<MyAccount />} />
           <Route path="/petsAdd" element={<PetsAdd />} />
           <Route path="/petsSearch" element={<PetsSearch />} />
+          <Route path="/searcpet" element={<SearcPet />} />
         </Routes>
       </div>
       <Footer />
