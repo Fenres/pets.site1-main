@@ -53,13 +53,12 @@ const AdDetails = ({ selectedAd, closeAd, onEdit, onDelete, token }) => {
         }));
     };
 
-    // Function to handle form submit (editing the ad)
     const handleSubmit = async () => {
         if (!formData.photos1) {
             setErrorMessage('Фото1 является обязательным.');
             return;
         }
-
+    
         const formDataToSend = new FormData();
         formDataToSend.append('photos1', formData.photos1); // photo1 is required
         if (formData.photos2) formDataToSend.append('photos2', formData.photos2);
@@ -67,17 +66,7 @@ const AdDetails = ({ selectedAd, closeAd, onEdit, onDelete, token }) => {
         formDataToSend.append('mark', formData.mark);
         formDataToSend.append('description', formData.description);
         formDataToSend.append('kind', formData.kind);
-
-        // Log data being sent to the server
-        console.log('Sending data to the server:', {
-            photos1: formData.photos1,
-            photos2: formData.photos2,
-            photos3: formData.photos3,
-            mark: formData.mark,
-            description: formData.description,
-            kind: formData.kind,
-        });
-
+    
         const options = {
             method: 'POST',
             headers: {
@@ -85,18 +74,19 @@ const AdDetails = ({ selectedAd, closeAd, onEdit, onDelete, token }) => {
             },
             body: formDataToSend,
         };
-
+    
         try {
             const response = await fetch(`https://pets.сделай.site/api/pets/${selectedAd.id}`, options);
-
-            // Log server response
+    
             const data = await response.json();
-            console.log('Server response:', data);
-
+    
             if (response.status === 200) {
                 onEdit(data); // Call onEdit with the updated ad data
                 setSuccessMessage('Объявление успешно отредактировано.');
                 handleCloseModal(); // Close modal on success
+    
+                // Перезагрузить страницу
+                window.location.reload();
             } else if (response.status === 401) {
                 setErrorMessage('Ошибка авторизации. Пожалуйста, войдите в систему.');
                 setAuthToken(null);  // Clear invalid token
@@ -112,8 +102,9 @@ const AdDetails = ({ selectedAd, closeAd, onEdit, onDelete, token }) => {
             setErrorMessage('Произошла ошибка при связи с сервером.');
         }
     };
+    
 
-    // Handle delete click
+    
     const handleDelete = async () => {
         const url = `https://pets.сделай.site/api/users/orders/${selectedAd.id}`;
         const options = {
@@ -123,25 +114,30 @@ const AdDetails = ({ selectedAd, closeAd, onEdit, onDelete, token }) => {
                 'Authorization': `Bearer ${authToken}`, // Auth token in header
             },
         };
-
+    
         // Log data being sent to the server
         console.log('Sending DELETE request to the server:', {
             url,
             options,
         });
-
+    
         try {
             const response = await fetch(url, options);
-
+    
             // Log server response
             const data = await response.json();
             console.log('Server response:', data);
-
+    
             if (response.status === 200) {
                 setDeletionSuccess(true);
-                onDelete(selectedAd.id);  // Trigger parent function to update the list
+                onEdit(data); // Call onEdit with the updated ad data
+                setSuccessMessage('Объявление успешно удалено.');
+    
+                onDelete(selectedAd.id); // Trigger parent function to update the list
+    
                 setTimeout(() => {
                     setShowDeleteModal(false);
+                    window.location.reload(); // Reload the page
                 }, 1000);
             } else {
                 setErrorMessage('Произошла ошибка при удалении.');
@@ -151,6 +147,7 @@ const AdDetails = ({ selectedAd, closeAd, onEdit, onDelete, token }) => {
             setErrorMessage('Произошла ошибка при связи с сервером.');
         }
     };
+    
 
     return (
         <div>

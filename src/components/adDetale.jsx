@@ -15,7 +15,7 @@ const AdDetails = ({ selectedAd, closeAd }) => {
 
     return (
         <div>
-            <div className="d-flex justify-content-center align-items-center p-4" style={{ minHeight: '45vh' }}>
+            <div className="d-flex justify-content-center align-items-center p-4" style={{ minHeight: '66vh' }}>
                 <div className="card-details d-flex flex-wrap align-items-center border p-2" style={{ width: '90%', maxWidth: '1200px', height: 'auto' }}>
                     <div className="image-container" style={{ width: '100%', maxWidth: '600px' }}>
                         {photos.length > 0 ? (
