@@ -7,6 +7,7 @@ function Poisc() {
     const [showModal, setShowModal] = useState(false);
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
+    const [mas, setmas] = useState([]);
     const [noResults, setNoResults] = useState(false);
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
@@ -36,8 +37,12 @@ function Poisc() {
             if (response.status === 200) {
                 const data = await response.json();
                 console.log('Полученные данные:', data);
+                debugger;
+                // setmas( new Set(data.data.orders.map(elem=>elem.description)));
                 setSuggestions(data.data.orders);
                 setNoResults(false);
+               
+
             } else if (response.status === 204) {
                 console.log('Нет данных для данного запроса');
                 setSuggestions([]);
@@ -49,6 +54,9 @@ function Poisc() {
 
         setLoading(false);
     };
+
+
+
 
     const debouncedFetch = useCallback(debounce(fetchSuggestions, 1000), []);
 
@@ -171,13 +179,13 @@ function Poisc() {
 
                     {/* Displaying suggestions */}
                     {!showCards && suggestions.length > 0 && !noResults && (
-                        suggestions.map((item) => (
+                        mas.map((item) => (
                             <li
                                 key={item.id}
                                 className="list-group-item"
                                 onClick={() => handleAdSelection(item)} // Fetch detailed data when selected
                             >
-                                {item.kind} - {item.description}
+                               {item.description}
                             </li>
                         ))
                     )}
