@@ -15,12 +15,37 @@ function MyAccount() {
     const [currentPage, setCurrentPage] = useState(1); // Pagination state
     const petsPerPage = 3; // Number of pets per page
 
+    const [isRegistered, setIsRegistered] = useState(false);
+
+    const [loginEmail, setLoginEmail] = useState("");
+    const [loginPassword, setLoginPassword] = useState("");
+  
+    const [registerName, setRegisterName] = useState("");
+    const [registerPhone, setRegisterPhone] = useState("");
+    const [registerEmail, setRegisterEmail] = useState("");
+    const [registerPassword, setRegisterPassword] = useState("");
+    const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState("");
+    const [registerConfirm, setRegisterConfirm] = useState(false);
     useEffect(() => {
         if (authToken) {
             loadUserData(); // Load user data if token exists
             fetchPets(); // Fetch pets data if token exists
         }
     }, [authToken]);
+
+    const handleCloseModal = () => {
+     
+        setLoginEmail("");
+        setLoginPassword("");
+        setRegisterName("");
+        setRegisterPhone("");
+        setRegisterEmail("");
+        setRegisterPassword("");
+        setRegisterPasswordConfirm("");
+        setRegisterConfirm(false);
+        setErrorMessages([]);
+        setIsRegistered(false);
+      };
 
     const loadUserData = async () => {
         const myHeaders = new Headers();
@@ -73,91 +98,104 @@ function MyAccount() {
         }
     };
 
-    const handleLoginSubmit = async (e) => {
-        e.preventDefault();
-        const loginData = {
-            email: e.target.email.value,
-            password: e.target.password.value,
-        };
 
-        if (!loginData.email || !loginData.password) {
-            setErrorMessages(["Email и пароль обязательны для ввода"]);
-            return;
-        }
+    
+      const resetErrors = () => setErrorMessages([]);
 
-        try {
-            const response = await fetch('https://pets.сделай.site/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData),
-            });
-
-            if (response.status === 200) {
-                const data = await response.json();
-                const token = data.data.token;
-                localStorage.setItem('token', token);
-                setAuthToken(token);
-                loadUserData();
-                fetchPets();
-            } else {
-                const errorData = await response.json();
-                setErrorMessages([errorData.message || 'Ошибка входа']);
-            }
-        } catch (error) {
-            setErrorMessages([error.message]);
-        }
-    };
-
-    // Registration form submission
-    const handleRegisterSubmit = async (e) => {
-        e.preventDefault();
-        const registrationData = {
-            name: e.target.name.value,
-            phone: e.target.phone.value,
-            email: e.target.email.value,
-            password: e.target.password.value,
-            password_confirmation: e.target.passwordConfirm.value,
-            confirm: e.target.confirm.checked ? "true" : "false",
-        };
-
-        const errors = validateRegistrationForm(registrationData);
-        if (errors.length > 0) {
-            setErrorMessages(errors);
-            return;
-        }
-
-        try {
-            const response = await fetch('https://pets.сделай.site/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(registrationData),
-            });
-
-            if (response.status === 204) {
-                setErrorMessages([]);
-                alert("Регистрация успешна, теперь можно войти!");
-            } else if (response.status === 422) {
-                const errorData = await response.json();
-                const errorMessages = Object.values(errorData.errors).flat();
-                setErrorMessages(errorMessages);
-            } else {
-                setErrorMessages(['Ошибка регистрации, попробуйте позже']);
-            }
-        } catch (error) {
-            setErrorMessages([error.message]);
-        }
-    };
-
-    const validateRegistrationForm = (data) => {
+      const validateRegistrationForm = () => {
         const errors = [];
-        if (!data.name) errors.push("Имя обязательно.");
-        if (!data.phone) errors.push("Телефон обязателен.");
-        if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) errors.push("Неверный формат email.");
-        if (!data.password || data.password.length < 7) errors.push("Пароль должен быть не менее 7 символов.");
-        if (data.password !== data.password_confirmation) errors.push("Пароли не совпадают.");
-        if (!data.confirm) errors.push("Необходимо согласие на обработку данных.");
+        const nameRegex = /^[А-Яа-яёЁ\s\-]+$/;
+        if (!nameRegex.test(registerName)) {
+          errors.push("Имя должно содержать только кириллицу, пробелы и дефисы.");
+        }
+        const phoneRegex = /^\+7?[0-9]{10}/;
+        if (!phoneRegex.test(registerPhone)) {
+          errors.push("Телефон должен содержать только цифры и может начинаться с символа '+7'.");
+        }
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        if (!emailRegex.test(registerEmail)) {
+          errors.push("Неверный формат email.");
+        }
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{7,}$/;
+        if (!passwordRegex.test(registerPassword)) {
+          errors.push("Пароль должен быть не менее 7 символов, с одной цифрой, одной строчной и одной заглавной буквой.");
+        }
+        if (registerPassword !== registerPasswordConfirm) {
+          errors.push("Пароли не совпадают.");
+        }
         return errors;
-    };
+      };
+    
+      const handleRegisterSubmit = async (e) => {
+        e.preventDefault();
+        const errors = validateRegistrationForm();
+        if (errors.length > 0) {
+          setErrorMessages(errors);
+          return;
+        }
+      
+        const registrationData = {
+          name: registerName,
+          phone: registerPhone,
+          email: registerEmail,
+          password: registerPassword,
+          password_confirmation: registerPasswordConfirm,
+          confirm: registerConfirm ? "true" : "false",
+        };
+      
+        try {
+          const response = await fetch('https://pets.сделай.site/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(registrationData),
+          });
+      
+          if (response.status === 204) {
+            setIsRegistered(true);
+          } else if (response.status === 422) {
+            const errorData = await response.json();
+            setErrorMessages(['Пользователь с такой почтой уже существует']);
+          } else {
+            throw new Error('Что-то пошло не так, попробуйте позже.');
+          }
+        } catch (error) {
+          setErrorMessages([error.message]);
+        }
+      };
+    
+      const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+    
+        if (!loginEmail || !loginPassword) {
+          setErrorMessages(['Email и пароль обязательны для ввода']);
+          return;
+        }
+    
+        const loginData = { email: loginEmail, password: loginPassword };
+    
+        try {
+          const response = await fetch('https://pets.сделай.site/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginData),
+          });
+    
+          if (response.status === 200) {
+            const data = await response.json();
+            const token = data.data.token;
+            localStorage.token = token;
+            setAuthToken(token);
+            handleCloseModal();
+            navigate('/myAccount');
+          } else {
+            const errorData = await response.json();
+            setErrorMessages([errorData.message || 'Ошибка входа']);
+          }
+        } catch (error) {
+          setErrorMessages([error.message]);
+        }
+      };
+    
 
     if (!authToken) {
         return (
@@ -179,60 +217,107 @@ function MyAccount() {
                         </Button>
                     </div>
 
-                    {errorMessages.length > 0 && (
-                        <Alert variant="danger" className="mt-3">
-                            <ul>
-                                {errorMessages.map((msg, idx) => (
-                                    <li key={idx}>{msg}</li>
-                                ))}
-                            </ul>
-                        </Alert>
-                    )}
+                   {errorMessages.length > 0 && (
+            <Alert variant="danger">
+              <ul>
+                {errorMessages.map((msg, idx) => (
+                  <li key={idx}>{msg}</li>
+                ))}
+              </ul>
+            </Alert>
+          )}
 
                     <div className="d-flex justify-content-center mt-4" style={{ maxHeight: '100%' }}>
                         <div className="w-100" style={{ maxWidth: '400px' }}>
-                            {isLoginTabActive ? (
-                                <Form onSubmit={handleLoginSubmit}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Email</Form.Label>
-                                        <Form.Control type="email" name="email" required />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Пароль</Form.Label>
-                                        <Form.Control type="password" name="password" required />
-                                    </Form.Group>
-                                    <Button type="submit" className="w-100">Войти</Button>
-                                </Form>
-                            ) : (
-                                <Form onSubmit={handleRegisterSubmit}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Имя</Form.Label>
-                                        <Form.Control type="text" name="name" required />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Телефон</Form.Label>
-                                        <Form.Control type="tel" name="phone" required />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Email</Form.Label>
-                                        <Form.Control type="email" name="email" required />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Пароль</Form.Label>
-                                        <Form.Control type="password" name="password" required />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Подтверждение пароля</Form.Label>
-                                        <Form.Control type="password" name="passwordConfirm" required />
-                                    </Form.Group>
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Согласие на обработку данных"
-                                        name="confirm"
-                                        required
-                                    />
-                                    <Button type="submit" className="w-100">Зарегистрироваться</Button>
-                                </Form>
+                        {isLoginTabActive ? (
+              <Form onSubmit={handleLoginSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Почта</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => { setLoginEmail(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Пароль</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => { setLoginPassword(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Button type="submit" className="w-100">
+                Войти
+              </Button>
+            </Form>
+          ) : (
+            // Registration Form
+            <Form onSubmit={handleRegisterSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Имя</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={registerName}
+                  onChange={(e) => { setRegisterName(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Телефон</Form.Label>
+                <Form.Control
+                  type="tel"
+                  value={registerPhone}
+                  onChange={(e) => { setRegisterPhone(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={registerEmail}
+                  onChange={(e) => { setRegisterEmail(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Пароль</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={registerPassword}
+                  onChange={(e) => { setRegisterPassword(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Подтверждение пароля</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={registerPasswordConfirm}
+                  onChange={(e) => { setRegisterPasswordConfirm(e.target.value); resetErrors(); }}
+                  required
+                />
+              </Form.Group>
+              <Form.Check
+                type="checkbox"
+                label="Согласие на обработку данных"
+                required
+                checked={registerConfirm}
+                onChange={() => setRegisterConfirm(!registerConfirm)}
+              />
+              {isRegistered ? (
+                <Alert variant="success" className="w-100">
+                  Регистрация успешна! Вы можете войти.
+                </Alert>
+              ) : (
+                <Button type="submit" className="w-100">
+                  Зарегистрироваться
+                </Button>
+              )}
+            </Form>
                             )}
                         </div>
                     </div>

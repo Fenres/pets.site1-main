@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form, Modal, Alert } from 'react-bootstrap';
-import { useAuth } from './AuthContext'; // Импортируем хук для работы с контекстом
+import { useAuth } from './AuthContext'; 
 import logo from '../png/logo.jpg';
 import Poisc from './poisc';
-
 
 const Header = () => {
   const [showModal, setShowModal] = useState(false);
@@ -12,7 +11,7 @@ const Header = () => {
   const [errorMessages, setErrorMessages] = useState([]);
   const [isRegistered, setIsRegistered] = useState(false);
 
-  const { authToken, setAuthToken } = useAuth(); // Получаем токен из контекста и функцию для его обновления
+  const { authToken, setAuthToken } = useAuth(); 
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -28,7 +27,6 @@ const Header = () => {
 
   const [suggestions, setSuggestions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-
   let debounceTimeout = null;
 
   const fetchSuggestions = async (query) => {
@@ -43,37 +41,27 @@ const Header = () => {
     }
   };
 
-  // Debounced handler for search input
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-
-    // If input has more than 3 characters, show suggestions
     if (query.length > 3) {
-      // Clear the previous debounce
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
-
-      // Set a new debounce
       debounceTimeout = setTimeout(() => {
         fetchSuggestions(query);
-      }, 1000); // 1000ms delay
+      }, 1000);
     } else {
       setSuggestions([]);
     }
   };
 
-  // Redirect to the search results page
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/petsSearch?query=${searchQuery.trim()}`);
     }
   };
-
-
-
 
   const isActive = (path) => location.pathname === path;
 
@@ -95,58 +83,40 @@ const Header = () => {
 
   const handleTabSwitch = (isLogin) => setIsLoginTabActive(isLogin);
 
+  const resetErrors = () => setErrorMessages([]);
+
   const validateRegistrationForm = () => {
     const errors = [];
-    
-    // Проверка имени
     const nameRegex = /^[А-Яа-яёЁ\s\-]+$/;
     if (!nameRegex.test(registerName)) {
       errors.push("Имя должно содержать только кириллицу, пробелы и дефисы.");
     }
-    
-    // Проверка телефона
-    const phoneRegex = /^\+?\d+$/;
+    const phoneRegex = /^\+7?[0-9]{10}/;
     if (!phoneRegex.test(registerPhone)) {
       errors.push("Телефон должен содержать только цифры и может начинаться с символа '+'.");
     }
-    
-    // Проверка email
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     if (!emailRegex.test(registerEmail)) {
       errors.push("Неверный формат email.");
     }
-
-    // Проверка пароля
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{7,}$/;
+    const passwordRegex = /^(?=.*[a-zа-я])(?=.*[A-ZА-Я])(?=.*\d)[A-Za-zА-Яа-я\d]{7,}$/;
     if (!passwordRegex.test(registerPassword)) {
       errors.push("Пароль должен быть не менее 7 символов, с одной цифрой, одной строчной и одной заглавной буквой.");
     }
-
-    // Проверка подтверждения пароля
     if (registerPassword !== registerPasswordConfirm) {
       errors.push("Пароли не совпадают.");
     }
-
-    // Проверка согласия
-    if (!registerConfirm) {
-      errors.push("Необходимо согласие на обработку данных.");
-    }
-
     return errors;
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-  
-    // Выполняем валидацию формы регистрации
     const errors = validateRegistrationForm();
     if (errors.length > 0) {
-      // Если есть ошибки, выводим их и отменяем отправку
       setErrorMessages(errors);
-      return;  // Не отправляем форму
+      return;
     }
   
-    // Если ошибок нет, отправляем данные на сервер
     const registrationData = {
       name: registerName,
       phone: registerPhone,
@@ -159,9 +129,7 @@ const Header = () => {
     try {
       const response = await fetch('https://pets.сделай.site/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registrationData),
       });
   
@@ -169,10 +137,7 @@ const Header = () => {
         setIsRegistered(true);
       } else if (response.status === 422) {
         const errorData = await response.json();
-        if (errorData && errorData.errors) {
-          const errorMessages = Object.values(errorData.errors).flat();
-          setErrorMessages(errorMessages);
-        }
+        setErrorMessages(['Пользователь с такой почтой уже существует']);
       } else {
         throw new Error('Что-то пошло не так, попробуйте позже.');
       }
@@ -180,9 +145,7 @@ const Header = () => {
       setErrorMessages([error.message]);
     }
   };
-  
 
-  
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
@@ -191,17 +154,12 @@ const Header = () => {
       return;
     }
 
-    const loginData = {
-      email: loginEmail,
-      password: loginPassword,
-    };
+    const loginData = { email: loginEmail, password: loginPassword };
 
     try {
       const response = await fetch('https://pets.сделай.site/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData),
       });
 
@@ -209,11 +167,9 @@ const Header = () => {
         const data = await response.json();
         const token = data.data.token;
         localStorage.token = token;
-
-        setAuthToken(token); // Обновляем токен в глобальном контексте
-
+        setAuthToken(token);
         handleCloseModal();
-        navigate('/myAccount'); // Перенаправление на личный кабинет без вывода окна с сообщением
+        navigate('/myAccount');
       } else {
         const errorData = await response.json();
         setErrorMessages([errorData.message || 'Ошибка входа']);
@@ -224,13 +180,12 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Убираем токен из локального хранилища
-    setAuthToken(null); // Обновляем токен в контексте
-    
+    localStorage.removeItem('token');
+    setAuthToken(null);
   };
 
   return (
-    <div className=''>
+    <div>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
           <Link to="/" className="navbar-brand">
@@ -250,46 +205,36 @@ const Header = () => {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav m-auto mb-1 mb-lg-0">
               <li className="nav-item">
-                <Link
-                  to="/"
-                  className={`nav-link ${isActive('/') ? 'disabled' : ''}`} aria-current="page">
+                <Link to="/" className={`nav-link ${isActive('/') ? 'disabled' : ''}`} aria-current="page">
                   Главная
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/myAccount"
-                  className={`nav-link ${isActive('/myAccount') ? 'disabled' : ''}`} >
+                <Link to="/myAccount" className={`nav-link ${isActive('/myAccount') ? 'disabled' : ''}`}>
                   Личный кабинет
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/petsAdd"
-                  className={`nav-link ${isActive('/petsAdd') ? 'disabled' : ''}`} >
+                <Link to="/petsAdd" className={`nav-link ${isActive('/petsAdd') ? 'disabled' : ''}`}>
                   Добавить объявление
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/petsSearch"
-                  className={`nav-link ${isActive('/petsSearch') ? 'disabled' : ''}`} >
+                <Link to="/petsSearch" className={`nav-link ${isActive('/petsSearch') ? 'disabled' : ''}`}>
                   Поиск по объявлениям
                 </Link>
               </li>
             </ul>
-         <Poisc></Poisc>
-                   
-              {!authToken ? (
-                <Button className="btn btn-primary me-2 mb-2 mb-lg-0" onClick={handleShowModal}>
-                  Вход / Регистрация
-                </Button>
-              ) : (
-                <Button className="btn btn-danger me-2 mb-2 mb-lg-0" onClick={handleLogout}>
-                  Выйти
-                </Button>
-              )}
-        
+            <Poisc />
+            {!authToken ? (
+              <Button className="btn btn-primary me-2 mb-2 mb-lg-0" onClick={handleShowModal}>
+                Вход / Регистрация
+              </Button>
+            ) : (
+              <Button className="btn btn-danger me-2 mb-2 mb-lg-0" onClick={handleLogout}>
+                Выйти
+              </Button>
+            )}
           </div>
         </div>
       </nav>
@@ -335,7 +280,7 @@ const Header = () => {
                 <Form.Control
                   type="email"
                   value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
+                  onChange={(e) => { setLoginEmail(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -344,7 +289,7 @@ const Header = () => {
                 <Form.Control
                   type="password"
                   value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
+                  onChange={(e) => { setLoginPassword(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -360,7 +305,7 @@ const Header = () => {
                 <Form.Control
                   type="text"
                   value={registerName}
-                  onChange={(e) => setRegisterName(e.target.value)}
+                  onChange={(e) => { setRegisterName(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -369,7 +314,7 @@ const Header = () => {
                 <Form.Control
                   type="tel"
                   value={registerPhone}
-                  onChange={(e) => setRegisterPhone(e.target.value)}
+                  onChange={(e) => { setRegisterPhone(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -378,7 +323,7 @@ const Header = () => {
                 <Form.Control
                   type="email"
                   value={registerEmail}
-                  onChange={(e) => setRegisterEmail(e.target.value)}
+                  onChange={(e) => { setRegisterEmail(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -387,7 +332,7 @@ const Header = () => {
                 <Form.Control
                   type="password"
                   value={registerPassword}
-                  onChange={(e) => setRegisterPassword(e.target.value)}
+                  onChange={(e) => { setRegisterPassword(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -396,7 +341,7 @@ const Header = () => {
                 <Form.Control
                   type="password"
                   value={registerPasswordConfirm}
-                  onChange={(e) => setRegisterPasswordConfirm(e.target.value)}
+                  onChange={(e) => { setRegisterPasswordConfirm(e.target.value); resetErrors(); }}
                   required
                 />
               </Form.Group>
@@ -412,7 +357,7 @@ const Header = () => {
                   Регистрация успешна! Вы можете войти.
                 </Alert>
               ) : (
-                <Button type="submit" className="w-100" disabled={errorMessages.length > 0}>
+                <Button type="submit" className="w-100">
                   Зарегистрироваться
                 </Button>
               )}

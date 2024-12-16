@@ -88,7 +88,10 @@ function Poisc() {
     const handleAdSelection = (ad) => {
         setQuery(ad.description); // Set the input value to the description
         setSuggestions([]); // Clear suggestions after selection
-        
+
+        setSearchLoading(true);
+        setShowCards(true); // Show cards when the search button is clicked
+        setSearchLoading(false);
     };
 
     const closeAnimalCard = () => {
