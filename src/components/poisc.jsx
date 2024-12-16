@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Card1 from './cart1'; // Ensure the component is imported correctly
+import Card1 from './cart1'; 
 import { Button, Form, Modal, Alert } from 'react-bootstrap';
-import AdDetails from './adDetale'; // Import the modal component
+import AdDetails from './adDetale'; 
 
 function Poisc() {
     const [showModal, setShowModal] = useState(false);
@@ -12,8 +12,8 @@ function Poisc() {
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
     const [showCards, setShowCards] = useState(false);
-    const [selectedAnimal, setSelectedAnimal] = useState(null); // For storing detailed pet data
-    const [showSuggestions, setShowSuggestions] = useState(true); // State to control visibility of suggestions
+    const [selectedAnimal, setSelectedAnimal] = useState(null); 
+    const [showSuggestions, setShowSuggestions] = useState(true);
 
     const debounce = (func, delay) => {
         let timeout;
@@ -25,7 +25,7 @@ function Poisc() {
         };
     };
 
-    // Function to fetch suggestions from API
+ 
     const fetchSuggestions = async (searchTerm) => {
         setLoading(true);
         console.log(`Отправка запроса на сервер с запросом: ${searchTerm}`);
@@ -37,8 +37,10 @@ function Poisc() {
             if (response.status === 200) {
                 const data = await response.json();
                 console.log('Полученные данные:', data);
-                debugger;
-                // setmas( new Set(data.data.orders.map(elem=>elem.description)));
+                // debugger;
+
+                let tmpSet = new Set(data.data.orders.map(elem=>elem.description))
+                setmas([...tmpSet] );
                 setSuggestions(data.data.orders);
                 setNoResults(false);
                
@@ -66,10 +68,10 @@ function Poisc() {
         setShowCards(false);
 
         if (value.length > 2) {
-            debouncedFetch(value); // Trigger fetch with debounce
-            setShowSuggestions(true); // Reopen the suggestion list when user types
+            debouncedFetch(value);
+            setShowSuggestions(true); 
         } else {
-            setSuggestions([]); // Clear suggestions if query is too short
+            setSuggestions([]); 
             setNoResults(false);
         }
     };
@@ -77,48 +79,48 @@ function Poisc() {
     const handleSearch = (e) => {
         e.preventDefault();
         setSearchLoading(true);
-        setShowCards(true); // Show cards when the search button is clicked
+        setShowCards(true);
         setSearchLoading(false);
     };
 
-    // Fetch detailed data for the selected ad
+
     const openAnimalCard = async (animalId) => {
         try {
             const response = await fetch(`https://pets.сделай.site/api/pets/${animalId}`);
             const data = await response.json();
-            setSelectedAnimal(data.data.pet); // Assuming 'data.data.pet' contains the detailed pet data
-            setShowModal(true); // Open modal after data is fetched
+            setSelectedAnimal(data.data.pet); 
+            setShowModal(true); 
         } catch (error) {
             console.error('Error fetching detailed pet data:', error);
         }
     };
 
     const handleAdSelection = (ad) => {
-        setQuery(ad.description); // Set the input value to the description
-        setSuggestions([]); // Clear suggestions after selection
+        setQuery(ad.description); 
+        setSuggestions([]); 
 
         setSearchLoading(true);
-        setShowCards(true); // Show cards when the search button is clicked
+        setShowCards(true); 
         setSearchLoading(false);
     };
 
     const closeAnimalCard = () => {
         setSelectedAnimal(null);
-        setShowModal(false); // Close the modal
+        setShowModal(false); 
     };
 
     const handleFocus = () => {
-        // Trigger suggestions if query is still valid
+       
         if (query.length > 2) {
             debouncedFetch(query);
-            setShowSuggestions(true); // Reopen suggestions list on focus
+            setShowSuggestions(true); 
         }
     };
 
     const handleBlur = () => {
-        // Set a timeout to hide the suggestions after 2 seconds (optional, not necessary if closing manually)
+     
         // const timeout = setTimeout(() => {
-        //     setSuggestions([]); // Hide suggestions after 2 seconds
+        //     setSuggestions([]);
         // }, 2000);
     };
 
@@ -135,8 +137,8 @@ function Poisc() {
                     type="search"
                     value={query}
                     onChange={handleInputChange}
-                    onFocus={handleFocus}  // Trigger onFocus to re-fetch suggestions if needed
-                    onBlur={handleBlur}    // Set a timeout to hide suggestions after 2 seconds
+                    onFocus={handleFocus} 
+                    onBlur={handleBlur}    
                     placeholder="Поиск"
                     aria-label="Search"
                 />
@@ -164,7 +166,7 @@ function Poisc() {
                         position: 'relative',
                     }}
                 >
-                    {/* Close button inside the list */}
+                  
                     <button
                         className="btn btn-sm btn-danger position-flex"
                         style={{
@@ -174,23 +176,27 @@ function Poisc() {
                         }}
                         onClick={closeSuggestions}
                     >
-                        Закрыть
+                        Закрыть                        
                     </button>
 
-                    {/* Displaying suggestions */}
-                    {!showCards && suggestions.length > 0 && !noResults && (
-                        mas.map((item) => (
-                            <li
+                        
+                    
+                    {!showCards && suggestions.length > 0 && !noResults && (                        
+                        
+                        suggestions.map((item) => (
+                            <li                                
                                 key={item.id}
+                               
+                                
                                 className="list-group-item"
-                                onClick={() => handleAdSelection(item)} // Fetch detailed data when selected
+                                onClick={() => handleAdSelection(item)} 
                             >
                                {item.description}
-                            </li>
+                            </li>                            
                         ))
                     )}
 
-                    {/* Displaying cards */}
+                 
                     {showCards && suggestions.length > 0 && (
                         suggestions.map((item) => (
                             <li key={item.id} className="list-group-item">
@@ -199,14 +205,14 @@ function Poisc() {
                         ))
                     )}
 
-                    {/* No results */}
+             
                     {noResults && !loading && (
                         <li className="list-group-item">Нет результатов</li>
                     )}
                 </ul>
             )}
 
-            {/* Modal for displaying ad details */}
+       
             {showModal && selectedAnimal && (
                 <Modal 
                     show={showModal} 
