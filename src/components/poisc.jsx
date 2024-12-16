@@ -38,6 +38,7 @@ function Poisc() {
                 console.log('Полученные данные:', data);
                 setSuggestions(data.data.orders);
                 setNoResults(false);
+                const qwe = data.data.orders;
             } else if (response.status === 204) {
                 console.log('Нет данных для данного запроса');
                 setSuggestions([]);
@@ -49,6 +50,9 @@ function Poisc() {
 
         setLoading(false);
     };
+    let itemSet = new Set(qwe);
+    console.log(itemSet);
+    debugger;
 
     const debouncedFetch = useCallback(debounce(fetchSuggestions, 1000), []);
 
@@ -85,8 +89,7 @@ function Poisc() {
         }
     };
 
-    //let itemSet = new Set(suggestions);
-
+    
     const handleAdSelection = (ad) => {
         setQuery(ad.description); // Set the input value to the description
         setSuggestions([]); // Clear suggestions after selection
@@ -176,7 +179,7 @@ function Poisc() {
                
 
                     {!showCards && suggestions.length > 0 && !noResults && (
-                        suggestions.map((item) => (
+                        itemSet.map((item) => (
                             <li
                                 key={item.id}
                                 className="list-group-item"
