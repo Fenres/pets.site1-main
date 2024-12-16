@@ -109,11 +109,11 @@ const Searchforads = () => {
           <>
             <div className="d-flex flex-wrap justify-content-center">
               {isLoading ? (
-                <p className="text-center" style={{ height: '570px' }}>Loading ads...</p>
+                <p className="text-center" style={{ height: '608px' }}>Loading ads...</p>
               ) : error ? (
-                <p className="text-center" style={{ height: '570px', color: 'red' }}>{error}</p>
+                <p className="text-center" style={{ height: '608px', color: 'red' }}>{error}</p>
               ) : currentAds.length === 0 ? (
-                <p className="text-center" style={{ height: '570px' }}>No ads found.</p>
+                <p className="text-center" style={{ height: '608px' }}>No ads found.</p>
               ) : (
                 currentAds.map((pet) => (
                   <Card

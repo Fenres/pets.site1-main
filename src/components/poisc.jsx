@@ -85,6 +85,8 @@ function Poisc() {
         }
     };
 
+    //let itemSet = new Set(suggestions);
+
     const handleAdSelection = (ad) => {
         setQuery(ad.description); // Set the input value to the description
         setSuggestions([]); // Clear suggestions after selection
@@ -169,7 +171,10 @@ function Poisc() {
                         Закрыть
                     </button>
 
-                    {/* Displaying suggestions */}
+            
+
+               
+
                     {!showCards && suggestions.length > 0 && !noResults && (
                         suggestions.map((item) => (
                             <li

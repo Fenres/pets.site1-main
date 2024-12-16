@@ -72,13 +72,13 @@ function PetsAddForm() {
     let formErrors = {};
     const { name, phone, email, password, password_confirmation, photos1, confirm, kind, description, district } = formData;
 
-    if (!/^[а-яА-ЯёЁa-zA-Z\s\-]+$/.test(name)) {
-      formErrors.name = "Имя может содержать только буквы, пробел и дефис";
+    if (!/^[а-яА-ЯёЁ\s\-]+$/.test(name)) {
+      formErrors.name = "Имя может содержать только кирилицу, пробел и дефис";
     }
-    if (!/^\+?\d+$/.test(phone)) {
+    if (!/^\+7?[0-9]{10}/.test(phone)) {
       formErrors.phone = "Номер телефона может содержать только цифры и символ +";
     }
-    if (!/\S+@\S+\.\S+/.test(email)) {
+    if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)) {
       formErrors.email = "Введите корректный адрес электронной почты";
     }
 
@@ -87,7 +87,7 @@ function PetsAddForm() {
       if (password.length < 7) {
         formErrors.password = "Пароль должен содержать не менее 7 символов";
       }
-      if (!/[0-9]/.test(password) || !/[a-z]/.test(password) || !/[A-Z]/.test(password)) {
+      if (!/[0-9]/.test(password) || !/[a-zа-я]/.test(password) || !/[A-ZА-Я]/.test(password)) {
         formErrors.password = "Пароль должен содержать хотя бы одну цифру, одну строчную и одну заглавную букву";
       }
       if (password !== password_confirmation) {
